@@ -8,17 +8,17 @@
 
 ; Change direction: W A S D
 
-!addr appleL         = $80 ; screen location of apple, low byte
-!addr appleH         = $81 ; screen location of apple, high byte
-!addr snakeHeadL     = $90 ; screen location of snake head, low byte
-!addr snakeHeadH     = $91 ; screen location of snake head, high byte
-!addr snakeBodyStartL = $92 ; start of snake body byte pairs
-!addr snakeBodyStartH = $93 ; start of snake body byte pairs
-!addr snakeDirection = $82 ; direction (possible values are below)
-!addr snakeLength    = $83 ; snake length, in bytes
-!addr tmpL           = $84
-!addr tmpH           = $85
-!addr frameCounter   = $86
+!addr appleL         = $20 ; screen location of apple, low byte
+!addr appleH         = $21 ; screen location of apple, high byte
+!addr snakeHeadL     = $30 ; screen location of snake head, low byte
+!addr snakeHeadH     = $31 ; screen location of snake head, high byte
+!addr snakeBodyStartL = $32 ; start of snake body byte pairs
+!addr snakeBodyStartH = $33 ; start of snake body byte pairs
+!addr snakeDirection = $22 ; direction (possible values are below)
+!addr snakeLength    = $23 ; snake length, in bytes
+!addr tmpL           = $24
+!addr tmpH           = $25
+!addr frameCounter   = $26
 !addr frame          = $1200
 
 ; Directions (each using a separate bit)
@@ -28,16 +28,16 @@ movingDown  = 4
 movingLeft  = 8
 
 ; ASCII values of keys controlling the snake
-ASCII_w    =  $77
-ASCII_a    =  $61
-ASCII_s    =  $73
-ASCII_d    =  $64
+ASCII_w    =  $91
+ASCII_a    =  $9d
+ASCII_s    =  $11
+ASCII_d    =  $1d
 
 ; System variables
 !addr sysRandom  = $fe
 !addr sysLastKey = $ff
 
-
+!addr getin      = $ffe4
 
 *=$0801
 
@@ -126,7 +126,7 @@ loop:
     ; lda #4
     ; sta veradat 
     
-    ; jsr readKeys
+    jsr readKeys
     jsr checkCollision
     jsr updateSnake
     jsr drawApple
@@ -140,7 +140,9 @@ do_blt:
     +blt $1200
 
 readKeys:
-    lda sysLastKey
+    ; lda #$91
+    jsr getin
+    ; lda sysLastKey
     cmp #ASCII_w
     beq upKey
     cmp #ASCII_d
@@ -297,19 +299,25 @@ collision:
 
 drawApple:
     ldy #0
-    lda #4
+    lda frameCounter
+    and #$f
     sta (appleL),y
     rts
 
 
 drawSnake:
+    ldx #0
+    lda #1
+    sta (snakeHeadL,x) ; paint head
+
+    ldx #2
+    lda #2
+    sta (snakeHeadL,x) ; paint tail (different color than head)
+
     ldx snakeLength
     lda #0
     sta (snakeHeadL,x) ; erase end of tail
 
-    ldx #0
-    lda #1
-    sta (snakeHeadL,x) ; paint head
     rts
 
 
@@ -327,4 +335,5 @@ spinloop1:
 
 
 gameOver:
--   jmp -
+    jsr init
+    jmp loop

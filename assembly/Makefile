@@ -1,4 +1,6 @@
 all:
+	acme -f cbm -Wtype-mismatch -DMACHINE_C64=0 -o snake.prg snake.asm
+	acme -f cbm -Wtype-mismatch -DMACHINE_C64=0 -o text-demo.prg text-demo.asm
 	acme -f cbm -DMACHINE_C64=0 -o mode4-demo.prg mode4-demo.asm
 	acme -f cbm -DMACHINE_C64=1 -o 64mode4-demo.prg mode4-demo.asm
 	

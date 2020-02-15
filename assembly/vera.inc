@@ -5,23 +5,24 @@
 } else {
 	verareg =$9f20
 }
-veralo  = verareg+0
-veramid = verareg+1
-verahi  = verareg+2
-veradat = verareg+3
-veradat2= verareg+4
-veractl = verareg+5
-veraien = verareg+6
-veraisr = verareg+7
+!addr veralo  = verareg+0
+!addr veramid = verareg+1
+!addr verahi  = verareg+2
+!addr veradat = verareg+3
+!addr veradat2= verareg+4
+!addr veractl = verareg+5
+!addr veraien = verareg+6
+!addr veraisr = verareg+7
 
-vreg_cmp  = $F0000
-vreg_pal  = $F1000
-vreg_lay1 = $F2000
-vreg_lay2 = $F3000
-vreg_spr  = $F4000
-vreg_sprd = $F5000
+!addr vreg_cmp  = $F0000
+!addr vreg_pal  = $F1000
+!addr vreg_lay1 = $F2000
+!addr vreg_lay2 = $F3000
+!addr vreg_spr  = $F4000
+!addr vreg_sprd = $F5000
 
-AUTO_INC_1 = $100000
+!addr AUTO_INC_1 = $100000
+!addr AUTO_INC_2 = $200000
 
 !macro vset .addr {
 	lda #<(.addr >> 16) | $10

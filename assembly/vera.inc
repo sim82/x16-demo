@@ -89,3 +89,8 @@
 	lda #1
 	sta veradat ; VGA output
 }
+
+!macro VERA_END_IRQ {
+	lda #$1
+	sta veraisr
+}

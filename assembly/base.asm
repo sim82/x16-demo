@@ -69,3 +69,40 @@ blt8:
 	bne -
 	rts
 }
+
+;=================================================
+; SYS_SET_IRQ
+;   Set where the kernal should jump to after
+;   its own interrupt handling.
+;-------------------------------------------------
+; INPUTS:   .address    Label or address of IRQ handler
+;
+;-------------------------------------------------
+; MODIFIES: A
+; 
+!macro SYS_SET_IRQ .address {
+    lda #<.address
+    sta $0314
+    lda #>.address
+    sta $0315
+}
+
+;=================================================
+; SYS_END_IRQ
+;   Restore registers and return control to 
+;   interrupted process.
+;-------------------------------------------------
+; INPUTS:   (none)
+;
+;-------------------------------------------------
+; MODIFIES: A, X, Y
+; 
+!macro SYS_END_IRQ {
+    PLA
+    TAY
+    PLA
+    TAX
+    PLA
+    RTI
+}
+

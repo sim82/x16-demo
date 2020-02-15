@@ -16,9 +16,10 @@
 !addr snakeBodyStartH = $33 ; start of snake body byte pairs
 !addr snakeDirection = $22 ; direction (possible values are below)
 !addr snakeLength    = $23 ; snake length, in bytes
-!addr tmpL           = $24
-!addr tmpH           = $25
+!addr ioVecL           = $24
+!addr ioVecH           = $25
 !addr frameCounter   = $26
+!addr newFrame       = $27
 !addr frame          = $1200
 
 ; Directions (each using a separate bit)
@@ -28,10 +29,10 @@ movingDown  = 4
 movingLeft  = 8
 
 ; ASCII values of keys controlling the snake
-ASCII_w    =  $91
-ASCII_a    =  $9d
-ASCII_s    =  $11
-ASCII_d    =  $1d
+ASCII_w    =  $57
+ASCII_a    =  $41
+ASCII_s    =  $53
+ASCII_d    =  $44
 
 ; System variables
 !addr sysRandom  = $fe
@@ -47,8 +48,14 @@ ASCII_d    =  $1d
 
 	+vset $00000 | AUTO_INC_1 ; VRAM bank 0
 
+    lda $0314
+    sta ioVecL
+    lda $0315
+    sta ioVecH
+
+start:
     jsr init
-    jsr loop
+    jmp loop
 
 init:
     lda #0
@@ -109,19 +116,22 @@ generateApplePosition0:
     ; clc
     ; adc #$12
     sta appleH
-
     rts
 
 
+inc_new_frame:
+    inc newFrame
+    jmp (ioVecL)
+    +VERA_END_IRQ
+    +SYS_END_IRQ
+
 loop:
-    ; lda #0
-	; sta veralo
-    ; lda #0
-	; sta veramid
     !addr .frameCounterScreen = $1400
     lda frameCounter
     inc frameCounter
     sta .frameCounterScreen
+    and #$7
+    bne .skip_frame
     ; sta veradat
     ; lda #4
     ; sta veradat 
@@ -129,11 +139,25 @@ loop:
     jsr readKeys
     jsr checkCollision
     jsr updateSnake
+.skip_frame
+
     jsr drawApple
     jsr drawSnake
-    jsr spinWheels
-    ; jsr blt
+
     jsr do_blt
+    ; jsr spinWheels
+
+    +SYS_SET_IRQ inc_new_frame
+    lda #0
+    sta newFrame
+    
+    cli
+    ; Tight loop until next frame
+-   lda newFrame
+    cmp #$01
+    bne -
+    sei
+    
     jmp loop
 
 do_blt:
@@ -335,5 +359,4 @@ spinloop1:
 
 
 gameOver:
-    jsr init
-    jmp loop
+    jmp start
